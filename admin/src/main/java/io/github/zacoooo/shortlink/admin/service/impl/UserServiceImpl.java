@@ -3,7 +3,7 @@ package io.github.zacoooo.shortlink.admin.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.github.zacoooo.shortlink.admin.common.convention.exception.ClientException;
+import io.github.zacoooo.shortlink.admin.common.convention.exception.ServiceException;
 import io.github.zacoooo.shortlink.admin.common.enums.UserErrorCodeEnum;
 import io.github.zacoooo.shortlink.admin.dao.entity.UserDO;
 import io.github.zacoooo.shortlink.admin.dao.mapper.UserMapper;
@@ -23,7 +23,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 .eq(UserDO::getUsername, username);
         UserDO userDO = baseMapper.selectOne(queryWrapper);
         if (userDO == null) {
-            throw new ClientException(UserErrorCodeEnum.USER_NULL);
+            throw new ServiceException(UserErrorCodeEnum.USER_NULL);
         }
         UserRespDTO result = new UserRespDTO();
         BeanUtils.copyProperties(userDO, result);
