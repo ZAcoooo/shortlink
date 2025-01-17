@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.github.zacoooo.shortlink.admin.common.convention.exception.ClientException;
-import io.github.zacoooo.shortlink.admin.common.convention.exception.ServiceException;
+import io.github.zacoooo.shortlink.admin.common.enums.UserErrorCodeEnum;
 import io.github.zacoooo.shortlink.admin.dao.entity.UserDO;
 import io.github.zacoooo.shortlink.admin.dao.mapper.UserMapper;
 import io.github.zacoooo.shortlink.admin.dto.req.UserLoginReqDTO;
@@ -28,7 +28,8 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.TimeUnit;
 
 import static io.github.zacoooo.shortlink.admin.common.constant.RedisCacheConstant.LOCK_USER_REGISTER_KEY;
-import static io.github.zacoooo.shortlink.admin.common.enums.UserErrorCodeEnum.*;
+import static io.github.zacoooo.shortlink.admin.common.enums.UserErrorCodeEnum.USER_NAME_EXIST;
+import static io.github.zacoooo.shortlink.admin.common.enums.UserErrorCodeEnum.USER_SAVE_ERROR;
 
 
 /**
@@ -42,14 +43,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
 
-
     @Override
     public UserRespDTO getUserByUsername(String username) {
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
                 .eq(UserDO::getUsername, username);
         UserDO userDO = baseMapper.selectOne(queryWrapper);
         if (userDO == null) {
-            throw new ServiceException(USER_NULL);
+            throw new ClientException(UserErrorCodeEnum.USER_NULL);
         }
         UserRespDTO result = new UserRespDTO();
         BeanUtils.copyProperties(userDO, result);
@@ -84,6 +84,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     @Override
     public void update(UserUpdateReqDTO requestParam) {
+        // TODO 验证当前用户名是否为登录用户
         LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate(UserDO.class)
                 .eq(UserDO::getUsername, requestParam.getUsername());
         baseMapper.update(BeanUtil.toBean(requestParam, UserDO.class), updateWrapper);
@@ -101,7 +102,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
         Boolean hasLogin = stringRedisTemplate.hasKey("login_" + requestParam.getUsername());
         if (hasLogin != null && hasLogin) {
-            throw  new ClientException("用户已登录");
+            throw new ClientException("用户已登录");
         }
         /**
          * Hash
@@ -112,7 +113,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
          */
         String uuid = UUID.randomUUID().toString();
         stringRedisTemplate.opsForHash().put("login_" + requestParam.getUsername(), uuid, JSON.toJSONString(userDO));
-        stringRedisTemplate.expire("login_" + requestParam.getUsername(), 30L, TimeUnit.MINUTES);
+        stringRedisTemplate.expire("login_" + requestParam.getUsername(), 30L, TimeUnit.DAYS);
         return new UserLoginRespDTO(uuid);
     }
 
