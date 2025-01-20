@@ -2,7 +2,7 @@ package io.github.zacoooo.shortlink.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.github.zacoooo.shortlink.admin.common.convention.result.Result;
-import io.github.zacoooo.shortlink.admin.remote.dto.ShortLinkRemoteService;
+import io.github.zacoooo.shortlink.admin.remote.ShortLinkRemoteService;
 import io.github.zacoooo.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
