@@ -111,12 +111,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if (hasLogin != null && hasLogin) {
             throw new ClientException("用户已登录");
         }
-        /**
-         * Hash
-         * Key：login_用户名
-         * Value：
-         *  Key：token标识
-         *  Val：JSON 字符串（用户信息）
+        /*
+          Hash
+          Key：login_用户名
+          Value：
+           Key：token标识
+           Val：JSON 字符串（用户信息）
          */
         String uuid = UUID.randomUUID().toString();
         stringRedisTemplate.opsForHash().put("login_" + requestParam.getUsername(), uuid, JSON.toJSONString(userDO));
