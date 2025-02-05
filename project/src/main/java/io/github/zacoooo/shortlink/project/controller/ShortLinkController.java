@@ -5,6 +5,7 @@ import io.github.zacoooo.shortlink.project.common.convention.result.Result;
 import io.github.zacoooo.shortlink.project.common.convention.result.Results;
 import io.github.zacoooo.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import io.github.zacoooo.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import io.github.zacoooo.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import io.github.zacoooo.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import io.github.zacoooo.shortlink.project.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import io.github.zacoooo.shortlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -36,6 +37,15 @@ public class ShortLinkController {
     @GetMapping("/api/short-link/v1/page")
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParam) {
         return Results.success(shortLinkService.pageShortLink(requestParam));
+    }
+
+    /**
+     * 修改短链接
+     */
+    @PutMapping("/api/short-link/v1/update")
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        shortLinkService.updateShortLink(requestParam);
+        return Results.success();
     }
 
     /**
