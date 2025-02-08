@@ -3,8 +3,10 @@ package io.github.zacoooo.shortlink.project.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import io.github.zacoooo.shortlink.project.dao.entity.ShortLinkDO;
+import io.github.zacoooo.shortlink.project.dto.req.RecycleBinRecoverReqDTO;
 import io.github.zacoooo.shortlink.project.dto.req.RecycleBinSaveReqDTO;
 import io.github.zacoooo.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import io.github.zacoooo.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
 import io.github.zacoooo.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 
 /**
@@ -25,5 +27,12 @@ public interface RecycleBinService extends IService<ShortLinkDO> {
      * @param requestParam 分页查询短链接请求参数
      * @return 短链接分页返回结果
      */
-    IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParam);
+    IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkRecycleBinPageReqDTO requestParam);
+
+    /**
+     * 恢复短链接
+     *
+     * @param requestParam 请求参数
+     */
+    void recoverRecycleBin(RecycleBinRecoverReqDTO requestParam);
 }

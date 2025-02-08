@@ -1,12 +1,12 @@
-package io.github.zacoooo.shortlink.admin.dto.req;
+package io.github.zacoooo.shortlink.project.dto.req;
 
 import lombok.Data;
 
 /**
- * 回收站保存功能
+ * 回收站恢复功能
  */
 @Data
-public class RecycleBinSaveReqDTO {
+public class RecycleBinRecoverReqDTO {
 
     /**
      * 分组标识
