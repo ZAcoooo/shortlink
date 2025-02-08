@@ -3,10 +3,7 @@ package io.github.zacoooo.shortlink.project.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.github.zacoooo.shortlink.project.common.convention.result.Result;
 import io.github.zacoooo.shortlink.project.common.convention.result.Results;
-import io.github.zacoooo.shortlink.project.dto.req.RecycleBinRecoverReqDTO;
-import io.github.zacoooo.shortlink.project.dto.req.RecycleBinSaveReqDTO;
-import io.github.zacoooo.shortlink.project.dto.req.ShortLinkPageReqDTO;
-import io.github.zacoooo.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
+import io.github.zacoooo.shortlink.project.dto.req.*;
 import io.github.zacoooo.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import io.github.zacoooo.shortlink.project.service.RecycleBinService;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +44,15 @@ public class RecycleBinController {
     @PostMapping("/api/short-link/v1/recycle-bin/recover")
     public Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
         recycleBinService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+
+    /**
+     * 移除短链接
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/remove")
+    public Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam) {
+        recycleBinService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }
