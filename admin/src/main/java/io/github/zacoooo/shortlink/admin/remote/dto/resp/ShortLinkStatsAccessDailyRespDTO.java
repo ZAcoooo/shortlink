@@ -1,23 +1,21 @@
-package io.github.zacoooo.shortlink.project.dto.resp;
+package io.github.zacoooo.shortlink.admin.remote.dto.resp;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+
+import java.util.Date;
 
 /**
  * 短链接基础访问监控响应参数
  */
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
 public class ShortLinkStatsAccessDailyRespDTO {
 
     /**
      * 日期
      */
-    private String date;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date date;
 
     /**
      * 访问量
