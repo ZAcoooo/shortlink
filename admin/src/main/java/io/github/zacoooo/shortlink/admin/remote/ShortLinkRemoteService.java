@@ -12,9 +12,11 @@ import io.github.zacoooo.shortlink.admin.dto.req.RecycleBinSaveReqDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.req.ShortLinkRecycleBinPageReqDTO;
+import io.github.zacoooo.shortlink.admin.remote.dto.req.ShortLinkStatsReqDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import io.github.zacoooo.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
+import io.github.zacoooo.shortlink.admin.remote.dto.resp.ShortLinkStatsRespDTO;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
