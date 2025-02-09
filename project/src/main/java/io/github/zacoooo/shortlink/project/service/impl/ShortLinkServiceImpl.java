@@ -7,6 +7,9 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -17,9 +20,11 @@ import io.github.zacoooo.shortlink.project.common.convention.exception.ClientExc
 import io.github.zacoooo.shortlink.project.common.convention.exception.ServiceException;
 import io.github.zacoooo.shortlink.project.common.enums.VailDateTypeEnum;
 import io.github.zacoooo.shortlink.project.dao.entity.LinkAccessStatsDO;
+import io.github.zacoooo.shortlink.project.dao.entity.LinkLocaleStatsDO;
 import io.github.zacoooo.shortlink.project.dao.entity.ShortLinkDO;
 import io.github.zacoooo.shortlink.project.dao.entity.ShortLinkGotoDO;
 import io.github.zacoooo.shortlink.project.dao.mapper.LinkAccessStatsMapper;
+import io.github.zacoooo.shortlink.project.dao.mapper.LinkLocaleStatsMapper;
 import io.github.zacoooo.shortlink.project.dao.mapper.ShortLinkGotoMapper;
 import io.github.zacoooo.shortlink.project.dao.mapper.ShortLinkMapper;
 import io.github.zacoooo.shortlink.project.dto.req.ShortLinkCreateReqDTO;
@@ -31,6 +36,7 @@ import io.github.zacoooo.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import io.github.zacoooo.shortlink.project.service.ShortLinkService;
 import io.github.zacoooo.shortlink.project.toolkit.HashUtil;
 import io.github.zacoooo.shortlink.project.toolkit.LinkUtil;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
@@ -59,6 +65,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static io.github.zacoooo.shortlink.project.common.constant.RedisKeyConstant.GOTO_SHORT_LINK_KEY;
 import static io.github.zacoooo.shortlink.project.common.constant.RedisKeyConstant.LOCK_GOTO_SHORT_LINK_KEY;
 import static io.github.zacoooo.shortlink.project.common.constant.RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY;
+import static io.github.zacoooo.shortlink.project.common.constant.ShortLinkConstant.AMAP_REMOTE_URL;
 
 /**
  * 短链接接口实现层
@@ -73,6 +80,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
     private final LinkAccessStatsMapper linkAccessStatsMapper;
+    private final LinkLocaleStatsMapper linkLocaleStatsMapper;
+
+    @Value("${short-link.stats.locale.amap-key}")
+    private String statsLocaleAmapKey;
 
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
@@ -301,6 +312,28 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .date(new Date())
                     .build();
             linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
+            Map<String, Object> localeParamMap = new HashMap<>();
+            localeParamMap.put("key", statsLocaleAmapKey);
+            localeParamMap.put("ip", remoteAddr);
+            String localeResultStr = HttpUtil.get(AMAP_REMOTE_URL, localeParamMap);
+            JSONObject localeResultObj = JSON.parseObject(localeResultStr);
+            String infoCode = localeResultObj.getString("infocode");
+            if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, "10000")) {
+                String province = localeResultObj.getString("province");
+                boolean unknownFlag = StrUtil.equals(province, "[]");
+                LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder()
+                        .province(unknownFlag ? "未知" : province)
+                        .city(unknownFlag ? "未知" : localeResultObj.getString("city"))
+                        .adcode(unknownFlag ? "未知" : localeResultObj.getString("adcode"))
+                        .cnt(1)
+                        .fullShortUrl(fullShortUrl)
+                        .country("中国")
+                        .gid(gid)
+                        .date(new Date())
+                        .build();
+                linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
+            }
+
         } catch (Throwable ex) {
             log.error("短链接访问量统计异常", ex);
         }
